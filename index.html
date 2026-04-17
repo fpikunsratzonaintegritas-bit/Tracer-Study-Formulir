@@ -23,6 +23,7 @@
       <p class="hero-sub">UNIVERSITAS SAM RATULANGI — FPIK — PSP MSP</p>
       <h1 class="hero-title">Formulir Kesediaan<br/>Tracer Study</h1>
       <p class="hero-desc">Program Studi Pemanfaatan Sumberdaya Perikanan<br/>Manajemen Sumberdaya Perairan · FPIK UNSRAT</p>
+      <a href="#" onclick="showAdmin(event)" class="hero-admin-link">🔐 Dashboard Admin</a>
     </div>
     <div class="hero-wave">
       <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -50,7 +51,23 @@
       </div>
     </div>
 
-    <!-- Progress Bar -->
+    <!-- Public Stats Panel -->
+    <div class="public-stats reveal" id="public-stats">
+      <div class="pstat-header">
+        <div class="pstat-title">
+          <span class="pstat-pulse"></span>
+          <span>Statistik Partisipan</span>
+        </div>
+        <span class="pstat-count-badge"><span id="pstat-total">0</span> telah mengisi</span>
+      </div>
+      <div class="pstat-year-row" id="pstat-years"></div>
+      <div class="pstat-list-wrap">
+        <div class="pstat-list" id="pstat-list"></div>
+      </div>
+      <p class="pstat-empty" id="pstat-empty" style="display:none">Belum ada yang mengisi. Jadilah yang pertama! 🎉</p>
+    </div>
+
+        <!-- Progress Bar -->
     <div class="progress-wrapper reveal">
       <div class="progress-header">
         <span class="progress-label">Langkah <span id="step-current">1</span> dari <span id="step-total">4</span></span>
@@ -321,10 +338,7 @@
       <button class="btn-next" onclick="resetForm()" style="margin-top:1.5rem;">Isi Formulir Lagi</button>
     </div>
 
-    <!-- Admin link -->
-    <div class="admin-link-bar">
-      <a href="#" onclick="showAdmin(event)">🔐 Masuk sebagai Admin</a>
-    </div>
+
 
   </main>
 </div>

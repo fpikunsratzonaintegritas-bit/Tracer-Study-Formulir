@@ -35,6 +35,7 @@ let deleteId      = null;
 document.addEventListener('DOMContentLoaded', () => {
   updateTopbarDate();
   loadFromStorage();
+  renderPublicStats();
 
   // Radio listeners
   document.querySelectorAll('input[name="jenis"]').forEach(r =>
@@ -73,6 +74,13 @@ function goToStep(n) {
   if (target) target.classList.add('active');
   currentStep = n;
   updateProgress();
+
+  // Show intro-card and public stats only on step 1
+  const introCard = document.querySelector('.intro-card');
+  if (introCard) introCard.style.display = n === 1 ? '' : 'none';
+  const publicStats = document.getElementById('public-stats');
+  if (publicStats) publicStats.style.display = n === 1 ? '' : 'none';
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -217,6 +225,7 @@ async function handleSubmit(e) {
 
   const formData = collectFormData();
   saveToStorage(formData);
+  renderPublicStats();
 
   // Try Google Sheets
   if (CONFIG.GOOGLE_SHEET_URL) {
@@ -804,3 +813,68 @@ function toggleSidebar() {
   ];
   localStorage.setItem('tracer_data', JSON.stringify(demo));
 })();
+
+/* ────────────────────────────────────────────
+   PUBLIC STATS (visible on landing page)
+──────────────────────────────────────────────*/
+function renderPublicStats() {
+  loadFromStorage();
+  const total = allData.length;
+
+  // Update count badge
+  const totalEl = document.getElementById('pstat-total');
+  if (totalEl) totalEl.textContent = total;
+
+  // Year pills
+  const yearRow = document.getElementById('pstat-years');
+  const emptyEl = document.getElementById('pstat-empty');
+  const listEl  = document.getElementById('pstat-list');
+  if (!yearRow || !listEl) return;
+
+  if (total === 0) {
+    yearRow.innerHTML = '';
+    listEl.innerHTML  = '';
+    if (emptyEl) emptyEl.style.display = '';
+    document.querySelector('.pstat-list-wrap').style.display = 'none';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+  document.querySelector('.pstat-list-wrap').style.display = '';
+
+  // Count per year
+  const years = { '2021': 0, '2022': 0, '2023': 0 };
+  let penggunaCount = 0;
+  allData.forEach(d => {
+    if (d.jenis === 'pengguna') penggunaCount++;
+    else if (d.tahun_lulus && years[d.tahun_lulus] !== undefined) years[d.tahun_lulus]++;
+  });
+
+  let pillsHtml = '';
+  Object.entries(years).forEach(([yr, cnt]) => {
+    if (cnt > 0) pillsHtml += `<span class="pstat-year-pill">TS ${yr}: ${cnt} orang</span>`;
+  });
+  if (penggunaCount > 0) pillsHtml += `<span class="pstat-year-pill pengguna">Pengguna: ${penggunaCount} instansi</span>`;
+  yearRow.innerHTML = pillsHtml;
+
+  // List items (show all, newest first)
+  listEl.innerHTML = allData.map(d => {
+    const isPengguna = d.jenis === 'pengguna';
+    const initial    = (d.nama || '?')[0].toUpperCase();
+    const displayName = d.nama || '-';
+    const meta = isPengguna
+      ? (d.nama_instansi ? `🏢 ${d.nama_instansi}` : 'Pengguna Lulusan')
+      : `🎓 Lulusan ${d.tahun_lulus || ''}${d.status_saat_ini ? ' · ' + d.status_saat_ini : ''}`;
+    const tagClass = isPengguna ? 'pengguna' : 'lulus';
+    const tagLabel = isPengguna ? 'Pengguna' : (d.tahun_lulus || 'Lulusan');
+    const avatarClass = isPengguna ? 'pstat-avatar pengguna' : 'pstat-avatar';
+    return `
+      <div class="pstat-item">
+        <div class="${avatarClass}">${initial}</div>
+        <div class="pstat-info">
+          <div class="pstat-name">${displayName}</div>
+          <div class="pstat-meta">${meta}</div>
+        </div>
+        <span class="pstat-tag ${tagClass}">${tagLabel}</span>
+      </div>`;
+  }).join('');
+}
