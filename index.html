@@ -17,8 +17,8 @@
   <header class="hero">
     <div class="hero-bg"></div>
     <div class="hero-content">
-      <div class="logo-badge">
-        <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="18" fill="rgba(255,255,255,0.15)"/><path d="M9 26l9-16 9 16H9z" fill="none" stroke="#fff" stroke-width="2"/><circle cx="18" cy="13" r="3" fill="#fff"/></svg>
+      <div class="hero-logo-wrap">
+        <img src="logo_unsrat_kecil.png" alt="Logo UNSRAT" class="hero-unsrat-logo" />
       </div>
       <p class="hero-sub">UNIVERSITAS SAM RATULANGI — FPIK — PSP MSP</p>
       <h1 class="hero-title">Formulir Kesediaan<br/>Tracer Study</h1>
@@ -98,13 +98,19 @@
         </div>
 
         <div class="field-group">
-          <label class="field-label" for="nama">Nama Lengkap <span class="req">*</span></label>
-          <input class="field-input" type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap Anda" autocomplete="name" />
+          <label class="field-label" for="nama">Nama Lengkap <span class="field-hint">(sesuai ijazah)</span> <span class="req">*</span></label>
+          <input class="field-input" type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap sesuai ijazah" autocomplete="name" />
           <span class="field-error" id="err-nama"></span>
         </div>
 
+        <div class="field-group" id="group-nim" style="display:none">
+          <label class="field-label" for="nim">NIM pada saat kuliah <span class="req">*</span></label>
+          <input class="field-input" type="text" id="nim" name="nim" placeholder="Contoh: 19051101001" maxlength="20" />
+          <span class="field-error" id="err-nim"></span>
+        </div>
+
         <div class="field-group">
-          <label class="field-label" for="whatsapp">Nomor WhatsApp Aktif <span class="req">*</span></label>
+          <label class="field-label" for="whatsapp">Nomor WhatsApp yang aktif saat ini <span class="req">*</span></label>
           <div class="input-prefix-wrap">
             <span class="input-prefix">+62</span>
             <input class="field-input prefixed" type="tel" id="whatsapp" name="whatsapp" placeholder="812 3456 7890" />
@@ -113,7 +119,7 @@
         </div>
 
         <div class="field-group">
-          <label class="field-label" for="email">Email Aktif <span class="req">*</span></label>
+          <label class="field-label" for="email">Alamat Email saat ini <span class="req">*</span></label>
           <input class="field-input" type="email" id="email" name="email" placeholder="nama@email.com" autocomplete="email" />
           <span class="field-error" id="err-email"></span>
         </div>
@@ -367,7 +373,7 @@
       <button class="btn-submit" style="width:100%" onclick="doLogin()">
         <span>Masuk ke Dashboard</span>
       </button>
-      <p class="login-hint">Default: admin / tracerstudy2024</p>
+      <p class="login-hint">Super Admin: superadmin / Admin@2024</p>
       <a href="#" class="back-link" onclick="showForm(event)">← Kembali ke Formulir</a>
     </div>
   </div>
@@ -398,6 +404,10 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M8 12l4 4 4-4M12 4v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         Export Data
       </a>
+      <a class="nav-item superadmin-nav" href="#" onclick="showTab('admins',this)" id="nav-admins" style="display:none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Kelola Admin
+      </a>
     </nav>
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="doLogout()">
@@ -422,7 +432,11 @@
       </div>
       <div class="topbar-right">
         <div class="topbar-date" id="topbar-date"></div>
-        <div class="admin-avatar">A</div>
+        <div class="topbar-userinfo">
+          <span class="topbar-username" id="topbar-username">—</span>
+          <span class="topbar-rolebadge" id="topbar-rolebadge"></span>
+        </div>
+        <div class="admin-avatar" id="admin-avatar">A</div>
       </div>
     </header>
 
@@ -543,6 +557,7 @@
               <tr>
                 <th>#</th>
                 <th onclick="sortBy('nama')" class="sortable">Nama <span class="sort-icon">⇅</span></th>
+                <th onclick="sortBy('nim')" class="sortable">NIM <span class="sort-icon">⇅</span></th>
                 <th onclick="sortBy('jenis')" class="sortable">Jenis <span class="sort-icon">⇅</span></th>
                 <th onclick="sortBy('tahun_lulus')" class="sortable">Tahun <span class="sort-icon">⇅</span></th>
                 <th onclick="sortBy('status_saat_ini')" class="sortable">Status <span class="sort-icon">⇅</span></th>
@@ -612,7 +627,81 @@
   </div>
 </div>
 
-<!-- Delete Modal -->
+    <!-- ── TAB: KELOLA ADMIN ── -->
+    <div class="tab-content" id="tab-admins">
+      <div class="admins-header">
+        <div>
+          <h3>Kelola Akun Admin</h3>
+          <p class="admins-sub">Tambah, edit, atau hapus akun admin yang dapat mengakses dashboard</p>
+        </div>
+        <button class="btn-add-admin" onclick="openAdminModal('add')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          Tambah Admin
+        </button>
+      </div>
+
+      <div class="superadmin-info-banner">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7l9 5 9-5-9-5zM3 17l9 5 9-5M3 12l9 5 9-5" stroke="#1d4ed8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div>
+          <strong>Super Admin:</strong> <code id="sa-username-display"></code>
+          — Ubah kredensial di <code>app.js</code> bagian <code>CONFIG</code>.
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-wrap">
+          <table class="data-table" id="admin-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nama Lengkap</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Tanggal Dibuat</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="admin-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Admin User Modal (Add / Edit) -->
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-icon" id="admin-modal-icon">👤</div>
+    <h3 id="admin-modal-title">Tambah Admin</h3>
+    <div class="field-group" style="margin-top:1rem;text-align:left">
+      <label class="field-label" for="am-nama">Nama Lengkap <span class="req">*</span></label>
+      <input class="field-input" type="text" id="am-nama" placeholder="Nama admin" />
+      <span class="field-error" id="am-err-nama"></span>
+    </div>
+    <div class="field-group" style="text-align:left">
+      <label class="field-label" for="am-username">Username <span class="req">*</span></label>
+      <input class="field-input" type="text" id="am-username" placeholder="username (tanpa spasi)" autocomplete="off" />
+      <span class="field-error" id="am-err-username"></span>
+    </div>
+    <div class="field-group" style="text-align:left">
+      <label class="field-label" for="am-password">Password <span class="req">*</span></label>
+      <div style="position:relative">
+        <input class="field-input" type="password" id="am-password" placeholder="Minimal 6 karakter" autocomplete="new-password" />
+        <button type="button" onclick="togglePassVis('am-password','am-eye')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);padding:0" id="am-eye">👁</button>
+      </div>
+      <span class="field-error" id="am-err-password"></span>
+      <span class="field-hint" id="am-pass-hint" style="font-size:12px;color:var(--muted);display:none">Kosongkan jika tidak ingin mengubah password</span>
+    </div>
+    <div class="modal-actions" style="margin-top:1.2rem">
+      <button class="btn-back" onclick="closeAdminModal()">Batal</button>
+      <button class="btn-submit" onclick="saveAdminUser()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="modal-overlay" id="delete-modal">
   <div class="modal-box">
     <div class="modal-icon">⚠️</div>

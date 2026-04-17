@@ -1008,3 +1008,188 @@ textarea.field-input { resize: vertical; min-height: 90px; }
   .intro-card { padding: 1.4rem; }
   .hero { padding: 2.5rem 1rem 4rem; }
 }
+
+/* ═══════════════════════════════════════════════
+   NEW ADDITIONS — NIM, Super Admin, Kelola Admin
+═══════════════════════════════════════════════ */
+
+/* Field hint (italic sub-label) */
+.field-hint {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+/* ── Topbar user info ── */
+.topbar-userinfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  margin-right: 4px;
+}
+.topbar-username {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.topbar-rolebadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #e0e7ff;
+  color: var(--indigo);
+}
+.topbar-rolebadge.superadmin {
+  background: linear-gradient(90deg, #fef3c7, #fde68a);
+  color: #92400e;
+}
+.topbar-rolebadge.admin {
+  background: var(--blue-bg);
+  color: var(--blue);
+}
+
+/* ── Kelola Admin sidebar item ── */
+.superadmin-nav {
+  border-top: 1px solid rgba(255,255,255,.1);
+  margin-top: 4px;
+  padding-top: 8px !important;
+}
+
+/* ── Tab: Kelola Admin ── */
+.admins-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+.admins-header h3 {
+  font-size: 1.2rem;
+  color: var(--text);
+  font-weight: 700;
+}
+.admins-sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 2px;
+}
+.btn-add-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.btn-add-admin:hover { background: var(--blue-dk); transform: translateY(-1px); }
+
+/* Super admin info banner */
+.superadmin-info-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--blue-bg);
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 1.5rem;
+  font-size: 13.5px;
+  color: #1e3a8a;
+}
+.superadmin-info-banner code {
+  background: #dbeafe;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue-dk);
+}
+
+/* Admin table cells */
+.user-code {
+  background: var(--blue-bg);
+  color: var(--blue-dk);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.pass-dots {
+  color: var(--muted);
+  letter-spacing: 2px;
+  font-size: 16px;
+}
+.action-cell { white-space: nowrap; }
+
+/* Edit button */
+.action-btn.edit-btn {
+  background: #eff6ff;
+  color: var(--blue);
+  border: 1px solid #bfdbfe;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 4px;
+  transition: var(--transition);
+}
+.action-btn.edit-btn:hover { background: var(--blue); color: #fff; }
+
+/* ── Admin Modal ── */
+#admin-modal .modal-box {
+  text-align: left;
+}
+#admin-modal .modal-icon {
+  font-size: 2rem;
+  margin-bottom: 4px;
+  text-align: center;
+}
+#admin-modal h3 {
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+
+/* NIM badge in table */
+.badge.badge-gray {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  font-size: 12px;
+  font-family: monospace;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .topbar-userinfo { display: none; }
+  .admins-header { flex-direction: column; }
+  .btn-add-admin { width: 100%; justify-content: center; }
+}
+
+/* ── UNSRAT Logo in Hero ── */
+.hero-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.hero-unsrat-logo {
+  width:  151px;   /* ~4cm at 96dpi */
+  height: 151px;
+  object-fit: contain;
+  border-radius: 50%;
+  box-shadow: 0 4px 24px rgba(0,0,0,.35), 0 0 0 4px rgba(255,255,255,.18);
+  background: #fff;
+  padding: 4px;
+  transition: transform .3s ease;
+}
+.hero-unsrat-logo:hover { transform: scale(1.04); }
