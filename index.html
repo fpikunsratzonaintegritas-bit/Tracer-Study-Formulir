@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tracer Study – PSP MSP FPIK UNSRAT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ══════════════════ FORM PAGE ══════════════════ -->
+<div id="page-form" class="page active">
+
+  <!-- Hero Header -->
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="logo-badge">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="18" fill="rgba(255,255,255,0.15)"/><path d="M9 26l9-16 9 16H9z" fill="none" stroke="#fff" stroke-width="2"/><circle cx="18" cy="13" r="3" fill="#fff"/></svg>
+      </div>
+      <p class="hero-sub">UNIVERSITAS SAM RATULANGI — FPIK — PSP MSP</p>
+      <h1 class="hero-title">Formulir Kesediaan<br/>Tracer Study</h1>
+      <p class="hero-desc">Program Studi Pemanfaatan Sumberdaya Perikanan<br/>Manajemen Sumberdaya Perairan · FPIK UNSRAT</p>
+    </div>
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#f4f7fc"/>
+      </svg>
+    </div>
+  </header>
+
+  <main class="form-main">
+
+    <!-- Introduction Card -->
+    <div class="intro-card reveal">
+      <div class="intro-icon">📋</div>
+      <h2>Pengantar Tracer Study</h2>
+      <p>Tracer Study ini dilakukan dalam rangka <strong>Reakreditasi Program Studi PSP MSP FPIK UNSRAT</strong>. Kegiatan ini merupakan bagian penting dari evaluasi dan pengembangan kualitas akademik secara berkelanjutan.</p>
+      <div class="target-list">
+        <div class="target-item"><span class="target-dot"></span><span>Lulusan Tahun <strong>TS-4 (2021)</strong></span></div>
+        <div class="target-item"><span class="target-dot"></span><span>Lulusan Tahun <strong>TS-3 (2022)</strong></span></div>
+        <div class="target-item"><span class="target-dot"></span><span>Lulusan Tahun <strong>TS-2 (2023)</strong></span></div>
+        <div class="target-item"><span class="target-dot"></span><span><strong>Pengguna Lulusan</strong> (instansi/perusahaan)</span></div>
+      </div>
+      <div class="intro-note">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#2563eb" stroke-width="1.5"/><path d="M10 9v5M10 7v.5" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <p>Kami sangat mengharapkan kesediaan Bapak/Ibu/Saudara untuk berpartisipasi dalam pengisian tracer study ini sebagai bagian dari upaya peningkatan kualitas dan kemajuan Program Studi PSP MSP FPIK UNSRAT. Partisipasi Anda sangat berarti bagi kami.</p>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-wrapper reveal">
+      <div class="progress-header">
+        <span class="progress-label">Langkah <span id="step-current">1</span> dari <span id="step-total">4</span></span>
+        <span class="progress-pct" id="progress-pct">25%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:25%"></div>
+      </div>
+      <div class="step-indicators">
+        <div class="step-dot active" data-step="1"><span>1</span><label>Identitas</label></div>
+        <div class="step-dot" data-step="2"><span>2</span><label>Detail</label></div>
+        <div class="step-dot" data-step="3"><span>3</span><label>Kesediaan</label></div>
+        <div class="step-dot" data-step="4"><span>4</span><label>Selesai</label></div>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <form id="tracer-form" novalidate>
+
+      <!-- ── STEP 1: IDENTITAS ── -->
+      <div class="form-card step-card active reveal" data-step="1">
+        <div class="card-header">
+          <div class="card-num">01</div>
+          <div>
+            <h3>Identitas Responden</h3>
+            <p>Silakan lengkapi data diri Anda dengan benar</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="nama">Nama Lengkap <span class="req">*</span></label>
+          <input class="field-input" type="text" id="nama" name="nama" placeholder="Masukkan nama lengkap Anda" autocomplete="name" />
+          <span class="field-error" id="err-nama"></span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="whatsapp">Nomor WhatsApp Aktif <span class="req">*</span></label>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix">+62</span>
+            <input class="field-input prefixed" type="tel" id="whatsapp" name="whatsapp" placeholder="812 3456 7890" />
+          </div>
+          <span class="field-error" id="err-whatsapp"></span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="email">Email Aktif <span class="req">*</span></label>
+          <input class="field-input" type="email" id="email" name="email" placeholder="nama@email.com" autocomplete="email" />
+          <span class="field-error" id="err-email"></span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Jenis Responden <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-card" id="rc-lulusan">
+              <input type="radio" name="jenis" value="lulusan" />
+              <div class="radio-inner">
+                <div class="radio-icon">🎓</div>
+                <div class="radio-text">
+                  <strong>Lulusan</strong>
+                  <span>Alumni PSP MSP FPIK UNSRAT</span>
+                </div>
+                <div class="radio-check"></div>
+              </div>
+            </label>
+            <label class="radio-card" id="rc-pengguna">
+              <input type="radio" name="jenis" value="pengguna" />
+              <div class="radio-inner">
+                <div class="radio-icon">🏢</div>
+                <div class="radio-text">
+                  <strong>Pengguna Lulusan</strong>
+                  <span>Instansi/perusahaan pengguna</span>
+                </div>
+                <div class="radio-check"></div>
+              </div>
+            </label>
+          </div>
+          <span class="field-error" id="err-jenis"></span>
+        </div>
+
+        <div class="card-actions">
+          <button type="button" class="btn-next" onclick="nextStep()">Lanjutkan <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: DETAIL (conditional) ── -->
+      <div class="form-card step-card" data-step="2">
+        <div class="card-header">
+          <div class="card-num">02</div>
+          <div>
+            <h3 id="step2-title">Detail Responden</h3>
+            <p id="step2-desc">Informasi tambahan sesuai jenis responden</p>
+          </div>
+        </div>
+
+        <!-- Lulusan Fields -->
+        <div id="block-lulusan">
+          <div class="field-group">
+            <label class="field-label">Tahun Lulus <span class="req">*</span></label>
+            <div class="select-group">
+              <label class="select-card" data-val="2021">
+                <input type="radio" name="tahun_lulus" value="2021" />
+                <div class="select-inner"><strong>2021</strong><span>TS-4</span></div>
+              </label>
+              <label class="select-card" data-val="2022">
+                <input type="radio" name="tahun_lulus" value="2022" />
+                <div class="select-inner"><strong>2022</strong><span>TS-3</span></div>
+              </label>
+              <label class="select-card" data-val="2023">
+                <input type="radio" name="tahun_lulus" value="2023" />
+                <div class="select-inner"><strong>2023</strong><span>TS-2</span></div>
+              </label>
+            </div>
+            <span class="field-error" id="err-tahun"></span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Status Saat Ini <span class="req">*</span></label>
+            <div class="dropdown-wrap">
+              <select class="field-select" id="status_saat_ini" name="status_saat_ini">
+                <option value="">— Pilih status Anda —</option>
+                <option value="Bekerja">💼 Bekerja</option>
+                <option value="Studi Lanjut S2">📚 Studi Lanjut S2</option>
+                <option value="Studi Lanjut S3">🎓 Studi Lanjut S3</option>
+                <option value="Wirausaha">🏪 Wirausaha</option>
+                <option value="Belum Bekerja">⏳ Belum Bekerja</option>
+              </select>
+            </div>
+            <span class="field-error" id="err-status"></span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="instansi_lulusan">Nama Instansi / Tempat Studi</label>
+            <input class="field-input" type="text" id="instansi_lulusan" name="instansi_lulusan" placeholder="Nama perusahaan, instansi, atau universitas" />
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="jabatan_lulusan">Jabatan / Program Studi</label>
+              <input class="field-input" type="text" id="jabatan_lulusan" name="jabatan_lulusan" placeholder="Jabatan atau prodi" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="kota">Kota / Negara</label>
+              <input class="field-input" type="text" id="kota" name="kota" placeholder="Manado / Jakarta / dll." />
+            </div>
+          </div>
+        </div>
+
+        <!-- Pengguna Fields -->
+        <div id="block-pengguna" style="display:none">
+          <div class="field-group">
+            <label class="field-label" for="nama_instansi">Nama Instansi <span class="req">*</span></label>
+            <input class="field-input" type="text" id="nama_instansi" name="nama_instansi" placeholder="Nama instansi atau perusahaan" />
+            <span class="field-error" id="err-instansi"></span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="nama_pengguna">Nama Pengguna Lulusan <span class="req">*</span></label>
+            <input class="field-input" type="text" id="nama_pengguna" name="nama_pengguna" placeholder="Nama atasan / pimpinan" />
+            <span class="field-error" id="err-pengguna"></span>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="jabatan_pengguna">Jabatan <span class="req">*</span></label>
+              <input class="field-input" type="text" id="jabatan_pengguna" name="jabatan_pengguna" placeholder="Jabatan Anda" />
+              <span class="field-error" id="err-jabatan-p"></span>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="nama_lulusan">Nama Lulusan yang Digunakan</label>
+              <input class="field-input" type="text" id="nama_lulusan" name="nama_lulusan" placeholder="Nama alumni PSP MSP" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="wa_pengguna">Nomor WhatsApp</label>
+              <input class="field-input" type="tel" id="wa_pengguna" name="wa_pengguna" placeholder="08xx-xxxx-xxxx" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="email_pengguna">Email Instansi</label>
+              <input class="field-input" type="email" id="email_pengguna" name="email_pengguna" placeholder="email@instansi.com" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card-actions two">
+          <button type="button" class="btn-back" onclick="prevStep()"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16 10H4M9 5l-5 5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Kembali</button>
+          <button type="button" class="btn-next" onclick="nextStep()">Lanjutkan <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: KESEDIAAN ── -->
+      <div class="form-card step-card" data-step="3">
+        <div class="card-header">
+          <div class="card-num">03</div>
+          <div>
+            <h3>Pernyataan Kesediaan</h3>
+            <p>Konfirmasi ketersediaan Anda untuk mengisi tracer study</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Apakah Anda bersedia mengisi Formulir Tracer Study lengkap? <span class="req">*</span></label>
+          <div class="radio-group vertical">
+            <label class="radio-card wide" id="rc-bersedia">
+              <input type="radio" name="kesediaan" value="Bersedia" />
+              <div class="radio-inner">
+                <div class="radio-icon">✅</div>
+                <div class="radio-text">
+                  <strong>Ya, Saya Bersedia</strong>
+                  <span>Saya bersedia mengisi formulir tracer study secara lengkap</span>
+                </div>
+                <div class="radio-check"></div>
+              </div>
+            </label>
+            <label class="radio-card wide" id="rc-tidak">
+              <input type="radio" name="kesediaan" value="Tidak Bersedia" />
+              <div class="radio-inner">
+                <div class="radio-icon">❌</div>
+                <div class="radio-text">
+                  <strong>Tidak Bersedia</strong>
+                  <span>Saya tidak dapat berpartisipasi saat ini</span>
+                </div>
+                <div class="radio-check"></div>
+              </div>
+            </label>
+          </div>
+          <span class="field-error" id="err-kesediaan"></span>
+        </div>
+
+        <div id="info-bersedia" class="info-banner" style="display:none">
+          <div class="info-icon">📨</div>
+          <div>
+            <strong>Terima Kasih atas Kesediaan Anda!</strong>
+            <p>Link Formulir Tracer Study lengkap akan segera dikirimkan melalui <strong>WhatsApp</strong> atau <strong>Email</strong> aktif Anda. Mohon pastikan data kontak yang Anda isi sudah benar.</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="catatan">Catatan / Pesan (Opsional)</label>
+          <textarea class="field-input" id="catatan" name="catatan" rows="3" placeholder="Tuliskan catatan atau pertanyaan jika ada..."></textarea>
+        </div>
+
+        <div class="card-actions two">
+          <button type="button" class="btn-back" onclick="prevStep()"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M16 10H4M9 5l-5 5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Kembali</button>
+          <button type="submit" class="btn-submit" id="btn-submit">
+            <span class="btn-submit-text">Kirim Formulir</span>
+            <span class="btn-submit-loader" style="display:none">
+              <svg class="spin" width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
+              Mengirim...
+            </span>
+          </button>
+        </div>
+      </div>
+
+    </form>
+
+    <!-- ── STEP 4: SUCCESS ── -->
+    <div class="form-card step-card" data-step="4" id="success-card">
+      <div class="success-anim">
+        <div class="success-circle">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none"><circle cx="30" cy="30" r="28" stroke="#22c55e" stroke-width="3" stroke-dasharray="176" stroke-dashoffset="0" class="success-ring"/><path d="M18 30l9 9 15-18" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" class="success-check"/></svg>
+        </div>
+      </div>
+      <h2 class="success-title">Formulir Terkirim!</h2>
+      <p class="success-msg">Terima kasih, <strong id="success-nama"></strong>. Data Anda telah berhasil kami terima. Tim kami akan segera menghubungi Anda melalui WhatsApp atau Email untuk mengirimkan link Formulir Tracer Study lengkap.</p>
+      <div class="success-details" id="success-details"></div>
+      <button class="btn-next" onclick="resetForm()" style="margin-top:1.5rem;">Isi Formulir Lagi</button>
+    </div>
+
+    <!-- Admin link -->
+    <div class="admin-link-bar">
+      <a href="#" onclick="showAdmin(event)">🔐 Masuk sebagai Admin</a>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════════ ADMIN LOGIN ══════════════════ -->
+<div id="page-login" class="page">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="#1e40af"/><path d="M14 34l10-20 10 20H14z" fill="none" stroke="#fff" stroke-width="2"/><circle cx="24" cy="18" r="4" fill="#93c5fd"/></svg>
+      </div>
+      <h2>Admin Login</h2>
+      <p>Masuk ke Dashboard Monitoring</p>
+      <div class="field-group">
+        <label class="field-label" for="admin-user">Username</label>
+        <input class="field-input" type="text" id="admin-user" placeholder="admin" />
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="admin-pass">Password</label>
+        <input class="field-input" type="password" id="admin-pass" placeholder="••••••••" />
+      </div>
+      <span class="field-error" id="err-login" style="display:block;margin-bottom:0.5rem"></span>
+      <button class="btn-submit" style="width:100%" onclick="doLogin()">
+        <span>Masuk ke Dashboard</span>
+      </button>
+      <p class="login-hint">Default: admin / tracerstudy2024</p>
+      <a href="#" class="back-link" onclick="showForm(event)">← Kembali ke Formulir</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ ADMIN DASHBOARD ══════════════════ -->
+<div id="page-admin" class="page">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="32" height="32" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="10" fill="#fff2"/><path d="M14 34l10-20 10 20H14z" fill="none" stroke="#fff" stroke-width="2"/><circle cx="24" cy="18" r="4" fill="#93c5fd"/></svg>
+      <div>
+        <span class="sidebar-title">TraceAdmin</span>
+        <span class="sidebar-sub">PSP MSP FPIK</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" href="#" onclick="showTab('dashboard',this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="#" onclick="showTab('data',this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Data Responden
+      </a>
+      <a class="nav-item" href="#" onclick="showTab('export',this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M8 12l4 4 4-4M12 4v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Export Data
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Keluar
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="admin-main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <div>
+          <h2 class="topbar-title" id="topbar-title">Dashboard</h2>
+          <p class="topbar-sub">Monitoring Tracer Study PSP MSP FPIK UNSRAT</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="topbar-date"></div>
+        <div class="admin-avatar">A</div>
+      </div>
+    </header>
+
+    <!-- ── TAB: DASHBOARD ── -->
+    <div class="tab-content active" id="tab-dashboard">
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-icon">👥</div>
+          <div class="stat-body">
+            <span class="stat-num" id="stat-total">0</span>
+            <span class="stat-lbl">Total Responden</span>
+          </div>
+          <div class="stat-trend" id="trend-total"></div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-body">
+            <span class="stat-num" id="stat-bersedia">0</span>
+            <span class="stat-lbl">Bersedia</span>
+          </div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">💼</div>
+          <div class="stat-body">
+            <span class="stat-num" id="stat-bekerja">0</span>
+            <span class="stat-lbl">Lulusan Bekerja</span>
+          </div>
+        </div>
+        <div class="stat-card violet">
+          <div class="stat-icon">📚</div>
+          <div class="stat-body">
+            <span class="stat-num" id="stat-s2">0</span>
+            <span class="stat-lbl">Studi Lanjut S2</span>
+          </div>
+        </div>
+        <div class="stat-card indigo">
+          <div class="stat-icon">🎓</div>
+          <div class="stat-body">
+            <span class="stat-num" id="stat-s3">0</span>
+            <span class="stat-lbl">Studi Lanjut S3</span>
+          </div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-icon">🏢</div>
+          <div class="stat-body">
+            <span class="stat-num" id="stat-pengguna">0</span>
+            <span class="stat-lbl">Pengguna Lulusan</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="chart-row">
+        <div class="chart-card">
+          <h3>Distribusi Responden</h3>
+          <div class="donut-wrap">
+            <canvas id="chartDonut" width="200" height="200"></canvas>
+            <div class="donut-legend" id="donut-legend"></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>Lulusan per Tahun</h3>
+          <canvas id="chartBar" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent -->
+      <div class="recent-card">
+        <div class="recent-header">
+          <h3>Terbaru Masuk</h3>
+          <a href="#" onclick="showTab('data',document.querySelector('[onclick*=\'data\']'))" class="see-all">Lihat Semua →</a>
+        </div>
+        <div class="table-wrap" id="recent-table"></div>
+      </div>
+    </div>
+
+    <!-- ── TAB: DATA ── -->
+    <div class="tab-content" id="tab-data">
+      <!-- Toolbar -->
+      <div class="data-toolbar">
+        <div class="search-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8"/><path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input type="text" id="search-input" placeholder="Cari nama responden..." oninput="filterData()" />
+        </div>
+        <div class="filter-group">
+          <select class="filter-select" id="filter-jenis" onchange="filterData()">
+            <option value="">Semua Jenis</option>
+            <option value="lulusan">Lulusan</option>
+            <option value="pengguna">Pengguna</option>
+          </select>
+          <select class="filter-select" id="filter-tahun" onchange="filterData()">
+            <option value="">Semua Tahun</option>
+            <option value="2021">2021 (TS-4)</option>
+            <option value="2022">2022 (TS-3)</option>
+            <option value="2023">2023 (TS-2)</option>
+          </select>
+          <select class="filter-select" id="filter-status" onchange="filterData()">
+            <option value="">Semua Status</option>
+            <option value="Bekerja">Bekerja</option>
+            <option value="Studi Lanjut S2">Studi S2</option>
+            <option value="Studi Lanjut S3">Studi S3</option>
+            <option value="Wirausaha">Wirausaha</option>
+            <option value="Belum Bekerja">Belum Bekerja</option>
+          </select>
+          <select class="filter-select" id="filter-kesediaan" onchange="filterData()">
+            <option value="">Semua Kesediaan</option>
+            <option value="Bersedia">Bersedia</option>
+            <option value="Tidak Bersedia">Tidak Bersedia</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-wrap">
+          <table class="data-table" id="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th onclick="sortBy('nama')" class="sortable">Nama <span class="sort-icon">⇅</span></th>
+                <th onclick="sortBy('jenis')" class="sortable">Jenis <span class="sort-icon">⇅</span></th>
+                <th onclick="sortBy('tahun_lulus')" class="sortable">Tahun <span class="sort-icon">⇅</span></th>
+                <th onclick="sortBy('status_saat_ini')" class="sortable">Status <span class="sort-icon">⇅</span></th>
+                <th>Instansi</th>
+                <th>WhatsApp</th>
+                <th>Email</th>
+                <th onclick="sortBy('kesediaan')" class="sortable">Kesediaan <span class="sort-icon">⇅</span></th>
+                <th onclick="sortBy('tanggal')" class="sortable">Tanggal <span class="sort-icon">⇅</span></th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="data-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination-bar">
+          <span class="page-info" id="page-info"></span>
+          <div class="page-btns">
+            <button class="page-btn" onclick="changePage(-1)" id="btn-prev">‹ Prev</button>
+            <div id="page-numbers"></div>
+            <button class="page-btn" onclick="changePage(1)" id="btn-next">Next ›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB: EXPORT ── -->
+    <div class="tab-content" id="tab-export">
+      <div class="export-grid">
+        <div class="export-card" onclick="exportCSV()">
+          <div class="export-icon csv">📊</div>
+          <h3>Export CSV</h3>
+          <p>Unduh semua data dalam format CSV, kompatibel dengan Excel dan Google Sheets</p>
+          <button class="btn-export">Download CSV</button>
+        </div>
+        <div class="export-card" onclick="exportExcel()">
+          <div class="export-icon excel">📗</div>
+          <h3>Export Excel</h3>
+          <p>Unduh semua data dalam format Excel (.xls) dengan format tabel lengkap</p>
+          <button class="btn-export excel-btn">Download Excel</button>
+        </div>
+        <div class="export-card" onclick="exportPDF()">
+          <div class="export-icon pdf">📄</div>
+          <h3>Export PDF</h3>
+          <p>Cetak atau simpan laporan data responden dalam format PDF siap cetak</p>
+          <button class="btn-export pdf-btn">Download PDF</button>
+        </div>
+        <div class="export-card" onclick="clearData()">
+          <div class="export-icon danger">🗑️</div>
+          <h3>Reset Data</h3>
+          <p>Hapus semua data responden dari sistem (tidak dapat dibatalkan)</p>
+          <button class="btn-export danger-btn">Hapus Semua Data</button>
+        </div>
+      </div>
+
+      <div class="gs-guide">
+        <h3>🔗 Cara Menghubungkan ke Google Sheets</h3>
+        <ol>
+          <li>Buka <strong>script.google.com</strong> dan buat proyek baru.</li>
+          <li>Paste kode Apps Script dari file <code>google-apps-script.js</code> yang disertakan.</li>
+          <li>Deploy sebagai <strong>Web App</strong> (Execute as: Me, Who has access: Anyone).</li>
+          <li>Salin URL deployment dan paste ke variabel <code>GOOGLE_SHEET_URL</code> di <code>app.js</code>.</li>
+          <li>Data akan otomatis tersimpan ke Google Sheets setiap kali formulir disubmit.</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <h3>Hapus Data?</h3>
+    <p>Data responden ini akan dihapus secara permanen dan tidak dapat dikembalikan.</p>
+    <div class="modal-actions">
+      <button class="btn-back" onclick="closeModal()">Batal</button>
+      <button class="btn-submit" style="background:#ef4444" onclick="confirmDelete()">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
