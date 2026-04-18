@@ -693,7 +693,7 @@ textarea.field-input { resize: vertical; min-height: 90px; }
 
 /* Admin Main */
 .admin-main {
-  flex: 1; overflow-y: auto;
+  flex: 1; overflow: hidden;
   display: flex; flex-direction: column;
   background: var(--bg);
 }
@@ -729,7 +729,7 @@ textarea.field-input { resize: vertical; min-height: 90px; }
 
 /* Tabs */
 .tab-content { display: none; padding: 1.75rem; flex: 1; }
-.tab-content.active { display: block; }
+.tab-content.active { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; }
 
 /* Stats Grid */
 .stats-grid {
