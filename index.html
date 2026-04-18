@@ -373,7 +373,7 @@
       <button class="btn-submit" style="width:100%" onclick="doLogin()">
         <span>Masuk ke Dashboard</span>
       </button>
-      <p class="login-hint">Super Admin: superadmin / Admin@2024</p>
+      <p class="login-hint">Super Admin: superadmin / Admin@2024 &nbsp;|&nbsp; Admin: admin / tracerstudy2024</p>
       <a href="#" class="back-link" onclick="showForm(event)">← Kembali ke Formulir</a>
     </div>
   </div>
@@ -404,7 +404,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M8 12l4 4 4-4M12 4v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         Export Data
       </a>
-      <a class="nav-item superadmin-nav" href="#" onclick="showTab('admins',this)" id="nav-admins" style="display:none">
+      <a class="nav-item superadmin-nav" href="#" onclick="showTab('admins',this)" id="nav-admins">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         Kelola Admin
       </a>
@@ -629,6 +629,43 @@
 
     <!-- ── TAB: KELOLA ADMIN ── -->
     <div class="tab-content" id="tab-admins">
+
+      <!-- Super Admin: Ganti Password Sendiri -->
+      <div class="sa-change-card">
+        <div class="sa-change-header">
+          <span class="sa-crown">👑</span>
+          <div>
+            <h4>Akun Super Admin</h4>
+            <p>Username: <code id="sa-username-display"></code></p>
+          </div>
+          <button class="btn-change-pass" onclick="toggleSAPassForm()">🔑 Ganti Password</button>
+        </div>
+        <div class="sa-pass-form" id="sa-pass-form" style="display:none">
+          <div class="sa-pass-fields">
+            <div class="field-group">
+              <label class="field-label" for="sa-old-pass">Password Lama <span class="req">*</span></label>
+              <input class="field-input" type="password" id="sa-old-pass" placeholder="••••••••" />
+              <span class="field-error" id="sa-err-old"></span>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="sa-new-pass">Password Baru <span class="req">*</span></label>
+              <input class="field-input" type="password" id="sa-new-pass" placeholder="Minimal 6 karakter" />
+              <span class="field-error" id="sa-err-new"></span>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="sa-confirm-pass">Konfirmasi Password Baru <span class="req">*</span></label>
+              <input class="field-input" type="password" id="sa-confirm-pass" placeholder="Ulangi password baru" />
+              <span class="field-error" id="sa-err-confirm"></span>
+            </div>
+          </div>
+          <div class="sa-pass-actions">
+            <button class="btn-back" onclick="toggleSAPassForm()">Batal</button>
+            <button class="btn-submit" onclick="changeSAPassword()">Simpan Password</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daftar Admin Biasa -->
       <div class="admins-header">
         <div>
           <h3>Kelola Akun Admin</h3>
@@ -638,14 +675,6 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
           Tambah Admin
         </button>
-      </div>
-
-      <div class="superadmin-info-banner">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7l9 5 9-5-9-5zM3 17l9 5 9-5M3 12l9 5 9-5" stroke="#1d4ed8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <div>
-          <strong>Super Admin:</strong> <code id="sa-username-display"></code>
-          — Ubah kredensial di <code>app.js</code> bagian <code>CONFIG</code>.
-        </div>
       </div>
 
       <div class="table-card">

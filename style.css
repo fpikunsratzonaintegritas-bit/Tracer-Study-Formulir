@@ -1193,3 +1193,93 @@ textarea.field-input { resize: vertical; min-height: 90px; }
   transition: transform .3s ease;
 }
 .hero-unsrat-logo:hover { transform: scale(1.04); }
+
+/* ── Kelola Admin nav: hidden by default, shown via data-role ── */
+.superadmin-nav { display: none !important; }
+#page-admin[data-role="superadmin"] .superadmin-nav { display: flex !important; }
+
+/* ── Super Admin: ganti password card ── */
+.sa-change-card {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+.sa-change-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.sa-crown { font-size: 2rem; line-height: 1; }
+.sa-change-header h4 { font-size: 1rem; font-weight: 700; margin-bottom: 2px; }
+.sa-change-header p  { font-size: 13px; opacity: .85; }
+.sa-change-header code {
+  background: rgba(255,255,255,.2);
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+.btn-change-pass {
+  margin-left: auto;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.btn-change-pass:hover { background: rgba(255,255,255,.28); }
+
+.sa-pass-form {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255,255,255,.2);
+}
+.sa-pass-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.sa-pass-form .field-label { color: rgba(255,255,255,.9); }
+.sa-pass-form .field-input {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.25);
+  color: #fff;
+}
+.sa-pass-form .field-input::placeholder { color: rgba(255,255,255,.4); }
+.sa-pass-form .field-input:focus {
+  background: rgba(255,255,255,.18);
+  border-color: rgba(255,255,255,.6);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.1);
+}
+.sa-pass-form .field-error { color: #fde68a; }
+.sa-pass-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+.sa-pass-actions .btn-back {
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.25);
+  color: #fff;
+}
+.sa-pass-actions .btn-submit {
+  background: #fff;
+  color: var(--blue-dk);
+}
+.sa-pass-actions .btn-submit:hover { background: #e0e7ff; }
+
+@media (max-width: 600px) {
+  .sa-change-header { flex-direction: column; align-items: flex-start; }
+  .btn-change-pass  { margin-left: 0; width: 100%; text-align: center; }
+  .sa-pass-fields   { grid-template-columns: 1fr; }
+}

@@ -9,6 +9,10 @@
    CONFIG  (edit these)
 ──────────────────────────────────────────────*/
 const CONFIG = {
+  // ── Super Admin (edit here, cannot be changed via dashboard) ──
+  SUPER_ADMIN_USER: 'superadmin',
+  SUPER_ADMIN_PASS: 'Admin@2024',
+  // ── Legacy single-admin (kept for backward compat) ──
   ADMIN_USER: 'admin',
   ADMIN_PASS: 'tracerstudy2024',
   // Paste your Google Apps Script Web App URL here:
@@ -28,6 +32,14 @@ let currentPage   = 1;
 let sortField     = 'tanggal';
 let sortDir       = 'desc';
 let deleteId      = null;
+
+// Auth state
+let currentUser   = '';
+let currentRole   = ''; // 'superadmin' | 'admin'
+
+// Admin user management
+let adminList     = [];
+let editAdminId   = null;
 
 /* ────────────────────────────────────────────
    INIT
@@ -111,6 +123,9 @@ function handleJenisChange(val) {
   document.getElementById('step2-desc').textContent =
     isLulusan ? 'Informasi karier dan status Anda saat ini'
               : 'Informasi instansi dan data lulusan yang digunakan';
+  // Show NIM only for lulusan
+  const groupNim = document.getElementById('group-nim');
+  if (groupNim) groupNim.style.display = isLulusan ? '' : 'none';
 }
 
 function handleKesediaanChange(val) {
@@ -139,6 +154,9 @@ function validateStep(step) {
 
   if (step === 1) {
     valid &= checkRequired('nama',     'err-nama',     'Nama lengkap wajib diisi');
+    if (currentJenis === 'lulusan') {
+      valid &= checkRequired('nim', 'err-nim', 'NIM wajib diisi untuk lulusan');
+    }
     valid &= checkPhone   ('whatsapp', 'err-whatsapp');
     valid &= checkEmail   ('email',    'err-email');
     valid &= checkRadio   ('jenis',    'err-jenis',    'Pilih jenis responden Anda');
@@ -254,6 +272,7 @@ function collectFormData() {
     id:              Date.now().toString(36) + Math.random().toString(36).slice(2,6),
     tanggal:         new Date().toISOString(),
     nama:            g('nama'),
+    nim:             g('nim'),
     whatsapp:        '+62' + g('whatsapp').replace(/^0/, ''),
     email:           g('email'),
     jenis:           gr('jenis'),
@@ -334,19 +353,87 @@ function setPage(id) {
    ADMIN AUTH
 ──────────────────────────────────────────────*/
 function doLogin() {
-  const u = document.getElementById('admin-user').value.trim();
-  const p = document.getElementById('admin-pass').value;
+  const u   = document.getElementById('admin-user').value.trim();
+  const p   = document.getElementById('admin-pass').value;
   const err = document.getElementById('err-login');
-  if (u === CONFIG.ADMIN_USER && p === CONFIG.ADMIN_PASS) {
-    err.textContent = '';
-    setPage('page-admin');
-    refreshDashboard();
-  } else {
-    err.textContent = '⚠️ Username atau password salah.';
+
+  // 1 — Super Admin check (from localStorage, fallback to CONFIG)
+  const sa = loadSACredentials();
+  if (u === sa.username && p === sa.password) {
+    currentUser = u;
+    currentRole = 'superadmin';
+    _onLoginSuccess();
+    return;
   }
+
+  // 2 — Regular admin list check
+  loadAdmins();
+  const found = adminList.find(a => a.username === u && a.password === p);
+  if (found) {
+    currentUser = found.username;
+    currentRole = 'admin';
+    _onLoginSuccess();
+    return;
+  }
+
+  err.textContent = '⚠️ Username atau password salah.';
+}
+
+/* SA credentials stored in localStorage so it can be changed via UI */
+function loadSACredentials() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('tracer_sa') || 'null');
+    if (saved && saved.username && saved.password) return saved;
+  } catch {}
+  // First run: seed from CONFIG
+  const defaults = { username: CONFIG.SUPER_ADMIN_USER, password: CONFIG.SUPER_ADMIN_PASS };
+  localStorage.setItem('tracer_sa', JSON.stringify(defaults));
+  return defaults;
+}
+
+function saveSACredentials(username, password) {
+  localStorage.setItem('tracer_sa', JSON.stringify({ username, password }));
 }
 
 function doLogout() {
+  currentUser = '';
+  currentRole = '';
+  document.getElementById('admin-user').value = '';
+  document.getElementById('admin-pass').value = '';
+  const pageAdmin = document.getElementById('page-admin');
+  if (pageAdmin) pageAdmin.removeAttribute('data-role');
+  setPage('page-form');
+}
+  document.getElementById('err-login').textContent = '';
+
+  // Set role attribute on admin page — CSS handles menu visibility
+  const pageAdmin = document.getElementById('page-admin');
+  if (pageAdmin) pageAdmin.setAttribute('data-role', currentRole);
+
+  // Update topbar avatar & user info
+  const avatarEl = document.getElementById('admin-avatar');
+  if (avatarEl) avatarEl.textContent = currentUser[0].toUpperCase();
+  const unEl = document.getElementById('topbar-username');
+  if (unEl) unEl.textContent = currentUser;
+  const rbEl = document.getElementById('topbar-rolebadge');
+  if (rbEl) {
+    rbEl.textContent = currentRole === 'superadmin' ? '👑 Super Admin' : '🔑 Admin';
+    rbEl.className   = 'topbar-rolebadge ' + currentRole;
+  }
+
+  // Populate super admin username on Kelola Admin tab
+  const saDisp = document.getElementById('sa-username-display');
+  if (saDisp) saDisp.textContent = loadSACredentials().username;
+
+  setPage('page-admin');
+  refreshDashboard();
+}
+
+function doLogout() {
+  currentUser = '';
+  currentRole = '';
+  document.getElementById('admin-user').value = '';
+  document.getElementById('admin-pass').value = '';
   setPage('page-form');
 }
 
@@ -358,12 +445,12 @@ function showTab(name, link) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   if (link) link.classList.add('active');
-  document.getElementById('topbar-title').textContent =
-    name === 'dashboard' ? 'Dashboard' :
-    name === 'data'      ? 'Data Responden' : 'Export Data';
+  const titles = { dashboard: 'Dashboard', data: 'Data Responden', export: 'Export Data', admins: 'Kelola Admin' };
+  document.getElementById('topbar-title').textContent = titles[name] || 'Dashboard';
 
   if (name === 'data')      { filteredData = [...allData]; renderTable(); }
   if (name === 'dashboard') { refreshDashboard(); }
+  if (name === 'admins')    { renderAdminUsers(); }
 }
 
 function refreshDashboard() {
@@ -552,12 +639,13 @@ function renderTable() {
   const start = (currentPage - 1) * CONFIG.ROWS_PER_PAGE;
   const slice = filteredData.slice(start, start + CONFIG.ROWS_PER_PAGE);
 
-  if (!slice.length) { tbody.innerHTML = `<tr><td colspan="11">${emptyState('Tidak ada data ditemukan')}</td></tr>`; }
+  if (!slice.length) { tbody.innerHTML = `<tr><td colspan="12">${emptyState('Tidak ada data ditemukan')}</td></tr>`; }
   else {
     tbody.innerHTML = slice.map((r, i) => `
       <tr>
         <td>${start + i + 1}</td>
         <td><strong>${esc(r.nama)}</strong></td>
+        <td>${r.nim ? `<span class="badge badge-gray">${esc(r.nim)}</span>` : '—'}</td>
         <td>${jenisBadge(r.jenis)}</td>
         <td>${r.tahun_lulus ? `<span class="badge badge-blue">${r.tahun_lulus}</span>` : '—'}</td>
         <td>${statusBadge(r.status_saat_ini)}</td>
@@ -618,13 +706,13 @@ function closeModal() {
 ──────────────────────────────────────────────*/
 function exportCSV() {
   const headers = [
-    'ID','Tanggal','Nama','WhatsApp','Email','Jenis',
+    'ID','Tanggal','Nama','NIM','WhatsApp','Email','Jenis',
     'Tahun Lulus','Status','Instansi','Jabatan','Kota',
     'Nama Instansi','Nama Pengguna','Jabatan Pengguna','Nama Lulusan',
     'Kesediaan','Catatan'
   ];
   const rows = allData.map(r => [
-    r.id, formatDate(r.tanggal), r.nama, r.whatsapp, r.email, r.jenis,
+    r.id, formatDate(r.tanggal), r.nama, r.nim||'', r.whatsapp, r.email, r.jenis,
     r.tahun_lulus, r.status_saat_ini, r.instansi, r.jabatan, r.kota,
     r.nama_instansi, r.nama_pengguna, r.jabatan_pengguna, r.nama_lulusan,
     r.kesediaan, r.catatan
@@ -637,13 +725,13 @@ function exportCSV() {
 
 function exportExcel() {
   const headers = [
-    'No','Tanggal','Nama','WhatsApp','Email','Jenis',
+    'No','Tanggal','Nama','NIM','WhatsApp','Email','Jenis',
     'Tahun Lulus','Status','Instansi','Jabatan','Kota','Kesediaan'
   ];
   const rows = allData.map((r, i) => `
     <tr>
       <td>${i+1}</td><td>${formatDate(r.tanggal)}</td>
-      <td>${r.nama}</td><td>${r.whatsapp}</td><td>${r.email}</td>
+      <td>${r.nama}</td><td>${r.nim||''}</td><td>${r.whatsapp}</td><td>${r.email}</td>
       <td>${r.jenis}</td><td>${r.tahun_lulus||''}</td>
       <td>${r.status_saat_ini||''}</td><td>${r.instansi||r.nama_instansi||''}</td>
       <td>${r.jabatan||r.jabatan_pengguna||''}</td><td>${r.kota||''}</td>
@@ -667,6 +755,7 @@ function exportPDF() {
     <tr>
       <td>${i+1}</td><td>${formatDate(r.tanggal)}</td>
       <td><strong>${r.nama}</strong></td>
+      <td>${r.nim||'—'}</td>
       <td>${r.jenis === 'lulusan' ? 'Lulusan' : 'Pengguna Lulusan'}</td>
       <td>${r.tahun_lulus || '—'}</td>
       <td>${r.status_saat_ini || '—'}</td>
@@ -691,7 +780,7 @@ function exportPDF() {
     <p>Dicetak: ${new Date().toLocaleString('id-ID')} &nbsp;|&nbsp; Total: ${allData.length} responden</p>
     <table>
       <thead><tr>
-        <th>#</th><th>Tanggal</th><th>Nama</th><th>Jenis</th>
+        <th>#</th><th>Tanggal</th><th>Nama</th><th>NIM</th><th>Jenis</th>
         <th>Tahun</th><th>Status</th><th>Instansi</th>
         <th>WhatsApp</th><th>Email</th><th>Kesediaan</th>
       </tr></thead>
@@ -804,19 +893,233 @@ function toggleSidebar() {
 (function seedDemo() {
   if (localStorage.getItem('tracer_data')) return;
   const demo = [
-    { id:'demo1', tanggal: new Date(2024,10,5).toISOString(), nama:'Agus Salim Malarangeng', whatsapp:'+6281234567890', email:'agus@gmail.com', jenis:'lulusan', tahun_lulus:'2021', status_saat_ini:'Bekerja', instansi:'BKIPM Manado', jabatan:'Staf Teknis', kota:'Manado', kesediaan:'Bersedia', catatan:'' },
-    { id:'demo2', tanggal: new Date(2024,10,6).toISOString(), nama:'Sitti Rahmawati Patunru', whatsapp:'+6285678901234', email:'sitti@yahoo.com', jenis:'lulusan', tahun_lulus:'2022', status_saat_ini:'Studi Lanjut S2', instansi:'IPB University', jabatan:'Ilmu Kelautan', kota:'Bogor', kesediaan:'Bersedia', catatan:'' },
-    { id:'demo3', tanggal: new Date(2024,10,7).toISOString(), nama:'John Frederik Wuntu', whatsapp:'+6287890123456', email:'john@outlook.com', jenis:'lulusan', tahun_lulus:'2023', status_saat_ini:'Bekerja', instansi:'PT. Indofisheries', jabatan:'QC Analyst', kota:'Bitung', kesediaan:'Bersedia', catatan:'' },
-    { id:'demo4', tanggal: new Date(2024,10,8).toISOString(), nama:'Dr. Marthen Pongoh', whatsapp:'+6289012345678', email:'marthen@unsrat.ac.id', jenis:'pengguna', nama_instansi:'FPIK UNSRAT', nama_pengguna:'Dr. Marthen Pongoh', jabatan_pengguna:'Dekan', nama_lulusan:'Berbagai Alumni', kesediaan:'Bersedia', catatan:'' },
-    { id:'demo5', tanggal: new Date(2024,10,9).toISOString(), nama:'Rini Mokoagow', whatsapp:'+6281122334455', email:'rini@gmail.com', jenis:'lulusan', tahun_lulus:'2021', status_saat_ini:'Wirausaha', instansi:'UD. Segar Laut', jabatan:'Pemilik', kota:'Tomohon', kesediaan:'Tidak Bersedia', catatan:'Sedang sibuk' },
-    { id:'demo6', tanggal: new Date(2024,10,10).toISOString(), nama:'Hendri Tumewu', whatsapp:'+6282233445566', email:'hendri@gmail.com', jenis:'lulusan', tahun_lulus:'2022', status_saat_ini:'Studi Lanjut S3', instansi:'Universitas Gadjah Mada', jabatan:'Manajemen Sumberdaya Perairan', kota:'Yogyakarta', kesediaan:'Bersedia', catatan:'' },
+    { id:'demo1', tanggal: new Date(2024,10,5).toISOString(), nama:'Agus Salim Malarangeng', nim:'17051101001', whatsapp:'+6281234567890', email:'agus@gmail.com', jenis:'lulusan', tahun_lulus:'2021', status_saat_ini:'Bekerja', instansi:'BKIPM Manado', jabatan:'Staf Teknis', kota:'Manado', kesediaan:'Bersedia', catatan:'' },
+    { id:'demo2', tanggal: new Date(2024,10,6).toISOString(), nama:'Sitti Rahmawati Patunru', nim:'18051101002', whatsapp:'+6285678901234', email:'sitti@yahoo.com', jenis:'lulusan', tahun_lulus:'2022', status_saat_ini:'Studi Lanjut S2', instansi:'IPB University', jabatan:'Ilmu Kelautan', kota:'Bogor', kesediaan:'Bersedia', catatan:'' },
+    { id:'demo3', tanggal: new Date(2024,10,7).toISOString(), nama:'John Frederik Wuntu', nim:'19051101003', whatsapp:'+6287890123456', email:'john@outlook.com', jenis:'lulusan', tahun_lulus:'2023', status_saat_ini:'Bekerja', instansi:'PT. Indofisheries', jabatan:'QC Analyst', kota:'Bitung', kesediaan:'Bersedia', catatan:'' },
+    { id:'demo4', tanggal: new Date(2024,10,8).toISOString(), nama:'Dr. Marthen Pongoh', nim:'', whatsapp:'+6289012345678', email:'marthen@unsrat.ac.id', jenis:'pengguna', nama_instansi:'FPIK UNSRAT', nama_pengguna:'Dr. Marthen Pongoh', jabatan_pengguna:'Dekan', nama_lulusan:'Berbagai Alumni', kesediaan:'Bersedia', catatan:'' },
+    { id:'demo5', tanggal: new Date(2024,10,9).toISOString(), nama:'Rini Mokoagow', nim:'17051101005', whatsapp:'+6281122334455', email:'rini@gmail.com', jenis:'lulusan', tahun_lulus:'2021', status_saat_ini:'Wirausaha', instansi:'UD. Segar Laut', jabatan:'Pemilik', kota:'Tomohon', kesediaan:'Tidak Bersedia', catatan:'Sedang sibuk' },
+    { id:'demo6', tanggal: new Date(2024,10,10).toISOString(), nama:'Hendri Tumewu', nim:'18051101006', whatsapp:'+6282233445566', email:'hendri@gmail.com', jenis:'lulusan', tahun_lulus:'2022', status_saat_ini:'Studi Lanjut S3', instansi:'Universitas Gadjah Mada', jabatan:'Manajemen Sumberdaya Perairan', kota:'Yogyakarta', kesediaan:'Bersedia', catatan:'' },
   ];
   localStorage.setItem('tracer_data', JSON.stringify(demo));
 })();
 
+/* ── Super Admin: ganti password sendiri ── */
+function toggleSAPassForm() {
+  const form = document.getElementById('sa-pass-form');
+  if (!form) return;
+  const isHidden = form.style.display === 'none';
+  form.style.display = isHidden ? '' : 'none';
+  if (isHidden) {
+    ['sa-old-pass','sa-new-pass','sa-confirm-pass'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    ['sa-err-old','sa-err-new','sa-err-confirm'].forEach(id => {
+      document.getElementById(id).textContent = '';
+    });
+  }
+}
+
+function changeSAPassword() {
+  const oldPass     = document.getElementById('sa-old-pass').value;
+  const newPass     = document.getElementById('sa-new-pass').value;
+  const confirmPass = document.getElementById('sa-confirm-pass').value;
+  const sa = loadSACredentials();
+  let valid = true;
+
+  if (!oldPass || oldPass !== sa.password) {
+    document.getElementById('sa-err-old').textContent = 'Password lama tidak sesuai';
+    valid = false;
+  } else { document.getElementById('sa-err-old').textContent = ''; }
+
+  if (!newPass || newPass.length < 6) {
+    document.getElementById('sa-err-new').textContent = 'Password baru minimal 6 karakter';
+    valid = false;
+  } else { document.getElementById('sa-err-new').textContent = ''; }
+
+  if (newPass && confirmPass !== newPass) {
+    document.getElementById('sa-err-confirm').textContent = 'Konfirmasi password tidak cocok';
+    valid = false;
+  } else { document.getElementById('sa-err-confirm').textContent = ''; }
+
+  if (!valid) return;
+
+  saveSACredentials(sa.username, newPass);
+  toggleSAPassForm();
+  currentUser = sa.username; // refresh
+  alert('✅ Password Super Admin berhasil diubah! Gunakan password baru saat login berikutnya.');
+}
+
 /* ────────────────────────────────────────────
-   PUBLIC STATS (visible on landing page)
+   ADMIN USER MANAGEMENT (Super Admin only)
 ──────────────────────────────────────────────*/
+function loadAdmins() {
+  try {
+    adminList = JSON.parse(localStorage.getItem('tracer_admins') || '[]');
+  } catch { adminList = []; }
+
+  // Seed default admin if empty
+  if (!adminList.length) {
+    adminList = [{
+      id:        'admin_default',
+      nama:      'Administrator',
+      username:  CONFIG.ADMIN_USER,
+      password:  CONFIG.ADMIN_PASS,
+      createdAt: new Date().toISOString(),
+    }];
+    saveAdmins();
+  }
+}
+
+function saveAdmins() {
+  localStorage.setItem('tracer_admins', JSON.stringify(adminList));
+}
+
+function renderAdminUsers() {
+  loadAdmins();
+  const tbody = document.getElementById('admin-tbody');
+  if (!tbody) return;
+
+  if (!adminList.length) {
+    tbody.innerHTML = `<tr><td colspan="6">${emptyState('Belum ada akun admin')}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = adminList.map((a, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${esc(a.nama)}</strong></td>
+      <td><code class="user-code">${esc(a.username)}</code></td>
+      <td><span class="pass-dots">••••••••</span></td>
+      <td>${formatDate(a.createdAt)}</td>
+      <td class="action-cell">
+        <button class="action-btn edit-btn" onclick="openAdminModal('edit','${a.id}')">✏️ Edit</button>
+        <button class="action-btn del-btn"  onclick="deleteAdminUser('${a.id}')">🗑 Hapus</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openAdminModal(mode, id) {
+  editAdminId = id || null;
+  const isEdit = mode === 'edit';
+  document.getElementById('admin-modal-icon').textContent  = isEdit ? '✏️' : '👤';
+  document.getElementById('admin-modal-title').textContent = isEdit ? 'Edit Admin' : 'Tambah Admin Baru';
+  document.getElementById('am-pass-hint').style.display    = isEdit ? '' : 'none';
+
+  // Clear fields
+  document.getElementById('am-nama').value     = '';
+  document.getElementById('am-username').value = '';
+  document.getElementById('am-password').value = '';
+  ['am-err-nama','am-err-username','am-err-password'].forEach(id => {
+    document.getElementById(id).textContent = '';
+  });
+
+  if (isEdit && id) {
+    loadAdmins();
+    const a = adminList.find(x => x.id === id);
+    if (a) {
+      document.getElementById('am-nama').value     = a.nama;
+      document.getElementById('am-username').value = a.username;
+    }
+  }
+
+  document.getElementById('admin-modal').classList.add('show');
+}
+
+function closeAdminModal() {
+  document.getElementById('admin-modal').classList.remove('show');
+  editAdminId = null;
+}
+
+function saveAdminUser() {
+  const nama     = document.getElementById('am-nama').value.trim();
+  const username = document.getElementById('am-username').value.trim().replace(/\s+/g, '');
+  const password = document.getElementById('am-password').value;
+  const isEdit   = !!editAdminId;
+  let valid      = true;
+
+  // Validate
+  if (!nama) {
+    document.getElementById('am-err-nama').textContent = 'Nama lengkap wajib diisi';
+    valid = false;
+  } else { document.getElementById('am-err-nama').textContent = ''; }
+
+  if (!username) {
+    document.getElementById('am-err-username').textContent = 'Username wajib diisi';
+    valid = false;
+  } else if (username === CONFIG.SUPER_ADMIN_USER) {
+    document.getElementById('am-err-username').textContent = 'Username ini sudah digunakan oleh Super Admin';
+    valid = false;
+  } else {
+    // Check duplicate username (excluding self on edit)
+    loadAdmins();
+    const dup = adminList.find(a => a.username === username && a.id !== editAdminId);
+    if (dup) {
+      document.getElementById('am-err-username').textContent = 'Username sudah digunakan';
+      valid = false;
+    } else {
+      document.getElementById('am-err-username').textContent = '';
+    }
+  }
+
+  if (!isEdit && !password) {
+    document.getElementById('am-err-password').textContent = 'Password wajib diisi';
+    valid = false;
+  } else if (password && password.length < 6) {
+    document.getElementById('am-err-password').textContent = 'Password minimal 6 karakter';
+    valid = false;
+  } else { document.getElementById('am-err-password').textContent = ''; }
+
+  if (!valid) return;
+
+  loadAdmins();
+  if (isEdit) {
+    const idx = adminList.findIndex(a => a.id === editAdminId);
+    if (idx > -1) {
+      adminList[idx].nama     = nama;
+      adminList[idx].username = username;
+      if (password) adminList[idx].password = password;
+    }
+  } else {
+    adminList.push({
+      id:        Date.now().toString(36),
+      nama,
+      username,
+      password,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  saveAdmins();
+  closeAdminModal();
+  renderAdminUsers();
+}
+
+function deleteAdminUser(id) {
+  loadAdmins();
+  if (adminList.length <= 1) {
+    alert('Tidak dapat menghapus admin terakhir. Tambah admin lain terlebih dahulu.');
+    return;
+  }
+  if (confirm('Hapus akun admin ini? Tindakan ini tidak dapat dibatalkan.')) {
+    adminList = adminList.filter(a => a.id !== id);
+    saveAdmins();
+    renderAdminUsers();
+  }
+}
+
+function togglePassVis(inputId, btnId) {
+  const input = document.getElementById(inputId);
+  const btn   = document.getElementById(btnId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type   = 'text';
+    if (btn) btn.textContent = '🙈';
+  } else {
+    input.type   = 'password';
+    if (btn) btn.textContent = '👁';
+  }
+}
+
 function renderPublicStats() {
   loadFromStorage();
   const total = allData.length;
