@@ -395,15 +395,7 @@ function saveSACredentials(username, password) {
   localStorage.setItem('tracer_sa', JSON.stringify({ username, password }));
 }
 
-function doLogout() {
-  currentUser = '';
-  currentRole = '';
-  document.getElementById('admin-user').value = '';
-  document.getElementById('admin-pass').value = '';
-  const pageAdmin = document.getElementById('page-admin');
-  if (pageAdmin) pageAdmin.removeAttribute('data-role');
-  setPage('page-form');
-}
+function _onLoginSuccess() {
   document.getElementById('err-login').textContent = '';
 
   // Set role attribute on admin page — CSS handles menu visibility
@@ -434,6 +426,8 @@ function doLogout() {
   currentRole = '';
   document.getElementById('admin-user').value = '';
   document.getElementById('admin-pass').value = '';
+  const pageAdmin = document.getElementById('page-admin');
+  if (pageAdmin) pageAdmin.removeAttribute('data-role');
   setPage('page-form');
 }
 
