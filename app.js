@@ -41,6 +41,9 @@ let currentRole   = ''; // 'superadmin' | 'admin'
 let adminList     = [];
 let editAdminId   = null;
 
+// Sync state
+let isSyncing     = false;
+
 /* ────────────────────────────────────────────
    INIT
 ──────────────────────────────────────────────*/
@@ -418,7 +421,10 @@ function _onLoginSuccess() {
   if (saDisp) saDisp.textContent = loadSACredentials().username;
 
   setPage('page-admin');
+  _injectSyncButton();
   refreshDashboard();
+  // Auto-sync from sheets on every login
+  syncFromSheets();
 }
 
 function doLogout() {
@@ -801,6 +807,102 @@ function download(blob, name) {
   a.download = name;
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+/* ────────────────────────────────────────────
+   SYNC FROM GOOGLE SHEETS
+──────────────────────────────────────────────*/
+async function syncFromSheets() {
+  if (!CONFIG.GOOGLE_SHEET_URL || isSyncing) return;
+  isSyncing = true;
+  _setSyncUI('syncing');
+
+  try {
+    const url = CONFIG.GOOGLE_SHEET_URL + '?action=getData&t=' + Date.now();
+    const res  = await fetch(url);
+    const json = await res.json();
+
+    if (!json.success || !Array.isArray(json.data)) throw new Error('Format data tidak valid');
+
+    // Merge: sheet data takes priority; deduplicate by id
+    loadFromStorage();
+    const localMap = {};
+    allData.forEach(d => { if (d.id) localMap[d.id] = d; });
+
+    let newCount = 0;
+    json.data.forEach(row => {
+      if (!row.id) return;
+      if (!localMap[row.id]) newCount++;
+      localMap[row.id] = row; // sheet data wins
+    });
+
+    allData = Object.values(localMap).sort((a, b) =>
+      (b.tanggal || '').localeCompare(a.tanggal || ''));
+    filteredData = [...allData];
+    saveAllToStorage();
+
+    _setSyncUI('success', newCount);
+    refreshDashboard();
+    // Also refresh table if on data tab
+    const dataTab = document.getElementById('tab-data');
+    if (dataTab && dataTab.classList.contains('active')) {
+      filteredData = [...allData]; renderTable();
+    }
+  } catch (err) {
+    _setSyncUI('error', 0, err.message);
+  } finally {
+    isSyncing = false;
+  }
+}
+
+function _setSyncUI(state, newCount, errMsg) {
+  const btn  = document.getElementById('sync-btn');
+  const info = document.getElementById('sync-info');
+  if (!btn || !info) return;
+
+  if (state === 'syncing') {
+    btn.disabled   = true;
+    btn.innerHTML  = '⏳ Menyinkron…';
+    info.textContent = '';
+    info.className = 'sync-info';
+  } else if (state === 'success') {
+    btn.disabled   = false;
+    btn.innerHTML  = '🔄 Sync Sheets';
+    const msg = newCount > 0
+      ? `✅ ${newCount} data baru ditambahkan — ${_timeNow()}`
+      : `✅ Data sudah terkini — ${_timeNow()}`;
+    info.textContent = msg;
+    info.className = 'sync-info success';
+  } else {
+    btn.disabled   = false;
+    btn.innerHTML  = '🔄 Sync Sheets';
+    info.textContent = `❌ Gagal: ${errMsg || 'Periksa koneksi'}`;
+    info.className = 'sync-info error';
+  }
+}
+
+function _timeNow() {
+  return new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+}
+
+function _injectSyncButton() {
+  // Only inject once
+  if (document.getElementById('sync-btn')) return;
+
+  const dashTab = document.getElementById('tab-dashboard');
+  if (!dashTab) return;
+
+  // Insert a sync bar at the very top of the dashboard tab
+  const bar = document.createElement('div');
+  bar.id        = 'sync-bar';
+  bar.className = 'sync-bar';
+  bar.innerHTML = `
+    <div class="sync-bar-left">
+      <span class="sync-bar-label">📡 Data dari Google Sheets</span>
+      <span id="sync-info" class="sync-info"></span>
+    </div>
+    <button id="sync-btn" class="sync-btn" onclick="syncFromSheets()">🔄 Sync Sheets</button>`;
+  dashTab.insertBefore(bar, dashTab.firstChild);
 }
 
 /* ────────────────────────────────────────────
