@@ -819,10 +819,20 @@ async function syncFromSheets() {
 
   try {
     const url = CONFIG.GOOGLE_SHEET_URL + '?action=getData&t=' + Date.now();
-    const res  = await fetch(url);
-    const json = await res.json();
+    const res  = await fetch(url, { redirect: 'follow' });
 
-    if (!json.success || !Array.isArray(json.data)) throw new Error('Format data tidak valid');
+    // Read as text first so we can show raw response on error
+    const text = await res.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch (_) {
+      // Response is HTML (login page / error page) — script belum di-deploy ulang
+      throw new Error('Apps Script belum di-deploy ulang. Buka script.google.com → Deploy → Manage deployments → Edit → New version → Deploy');
+    }
+
+    if (json.success === false) throw new Error('Apps Script error: ' + (json.error || 'Unknown'));
+    if (!Array.isArray(json.data))  throw new Error('Format tidak valid. Pastikan kode Apps Script sudah diganti & di-deploy ulang');
 
     // Merge: sheet data takes priority; deduplicate by id
     loadFromStorage();
