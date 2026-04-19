@@ -16,7 +16,10 @@ const CONFIG = {
   ADMIN_USER: 'admin',
   ADMIN_PASS: 'tracerstudy2024',
   // Paste your Google Apps Script Web App URL here:
-  GOOGLE_SHEET_URL: 'https://script.google.com/macros/s/AKfycbx4iUdspY6ML5bpOPVh_GDGDIfT5hQmdCcp90SuMTuHU0YPAVky5vp9K-9Wmfa1rvJY/exec',
+  // ── Supabase (isi setelah buat project di supabase.com) ──
+  SUPABASE_URL:      'https://ttexcqpuybkozjxesphr.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0ZXhjcXB1eWJrb3pqeGVzcGhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MDA3MTgsImV4cCI6MjA5MjE3NjcxOH0.ritji1WaGwVT4UGNBFahZ0mWqQttZh76W_IQGcWjvlA',
+  SUPABASE_TABLE:    'tracer_study',
   ROWS_PER_PAGE: 10,
 };
 
@@ -248,17 +251,8 @@ async function handleSubmit(e) {
   saveToStorage(formData);
   renderPublicStats();
 
-  // Try Google Sheets
-  if (CONFIG.GOOGLE_SHEET_URL) {
-    try {
-      await fetch(CONFIG.GOOGLE_SHEET_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-    } catch (_) { /* Offline — saved locally */ }
-  }
+  // Kirim ke Supabase
+  await saveToSupabase(formData);
 
   btn.disabled      = false;
   btnText.style.display  = 'inline';
@@ -813,37 +807,36 @@ function download(blob, name) {
    SYNC FROM GOOGLE SHEETS
 ──────────────────────────────────────────────*/
 async function syncFromSheets() {
-  if (!CONFIG.GOOGLE_SHEET_URL || isSyncing) return;
+  if (isSyncing) return;
   isSyncing = true;
   _setSyncUI('syncing');
 
   try {
-    const url = CONFIG.GOOGLE_SHEET_URL + '?action=getData&t=' + Date.now();
-    const res  = await fetch(url, { redirect: 'follow' });
+    const isConfigured = CONFIG.SUPABASE_URL && CONFIG.SUPABASE_URL !== 'GANTI_SUPABASE_URL';
+    if (!isConfigured) throw new Error('Supabase belum dikonfigurasi di CONFIG');
 
-    // Read as text first so we can show raw response on error
-    const text = await res.text();
-    let json;
-    try {
-      json = JSON.parse(text);
-    } catch (_) {
-      // Response is HTML (login page / error page) — script belum di-deploy ulang
-      throw new Error('Apps Script belum di-deploy ulang. Buka script.google.com → Deploy → Manage deployments → Edit → New version → Deploy');
-    }
+    const url = `${CONFIG.SUPABASE_URL}/rest/v1/${CONFIG.SUPABASE_TABLE}?select=*&order=tanggal.desc`;
+    const res = await fetch(url, {
+      headers: {
+        'apikey':        CONFIG.SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY,
+      }
+    });
 
-    if (json.success === false) throw new Error('Apps Script error: ' + (json.error || 'Unknown'));
-    if (!Array.isArray(json.data))  throw new Error('Format tidak valid. Pastikan kode Apps Script sudah diganti & di-deploy ulang');
+    if (!res.ok) throw new Error(`Supabase error ${res.status}: ${await res.text()}`);
+    const rows = await res.json();
+    if (!Array.isArray(rows)) throw new Error('Format data tidak valid dari Supabase');
 
-    // Merge: sheet data takes priority; deduplicate by id
+    // Merge: Supabase data takes priority; deduplicate by id
     loadFromStorage();
     const localMap = {};
     allData.forEach(d => { if (d.id) localMap[d.id] = d; });
 
     let newCount = 0;
-    json.data.forEach(row => {
+    rows.forEach(row => {
       if (!row.id) return;
       if (!localMap[row.id]) newCount++;
-      localMap[row.id] = row; // sheet data wins
+      localMap[row.id] = row;
     });
 
     allData = Object.values(localMap).sort((a, b) =>
@@ -853,7 +846,6 @@ async function syncFromSheets() {
 
     _setSyncUI('success', newCount);
     refreshDashboard();
-    // Also refresh table if on data tab
     const dataTab = document.getElementById('tab-data');
     if (dataTab && dataTab.classList.contains('active')) {
       filteredData = [...allData]; renderTable();
@@ -865,29 +857,53 @@ async function syncFromSheets() {
   }
 }
 
+/* ────────────────────────────────────────────
+   SUPABASE: SAVE & DELETE
+──────────────────────────────────────────────*/
+function _sbHeaders() {
+  return {
+    'Content-Type':  'application/json',
+    'apikey':        CONFIG.SUPABASE_ANON_KEY,
+    'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY,
+    'Prefer':        'return=minimal',
+  };
+}
+
+async function saveToSupabase(data) {
+  const isConfigured = CONFIG.SUPABASE_URL && CONFIG.SUPABASE_URL !== 'GANTI_SUPABASE_URL';
+  if (!isConfigured) return; // offline/unconfigured — already saved to localStorage
+  try {
+    await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/${CONFIG.SUPABASE_TABLE}`, {
+      method:  'POST',
+      headers: _sbHeaders(),
+      body:    JSON.stringify(data),
+    });
+  } catch (_) { /* ignore — data already in localStorage */ }
+}
+
 function _setSyncUI(state, newCount, errMsg) {
   const btn  = document.getElementById('sync-btn');
   const info = document.getElementById('sync-info');
   if (!btn || !info) return;
 
   if (state === 'syncing') {
-    btn.disabled   = true;
-    btn.innerHTML  = '⏳ Menyinkron…';
+    btn.disabled     = true;
+    btn.innerHTML    = '⏳ Menyinkron…';
     info.textContent = '';
-    info.className = 'sync-info';
+    info.className   = 'sync-info';
   } else if (state === 'success') {
-    btn.disabled   = false;
-    btn.innerHTML  = '🔄 Sync Sheets';
+    btn.disabled  = false;
+    btn.innerHTML = '🔄 Sync Supabase';
     const msg = newCount > 0
-      ? `✅ ${newCount} data baru ditambahkan — ${_timeNow()}`
+      ? `✅ ${newCount} data baru — ${_timeNow()}`
       : `✅ Data sudah terkini — ${_timeNow()}`;
     info.textContent = msg;
-    info.className = 'sync-info success';
+    info.className   = 'sync-info success';
   } else {
-    btn.disabled   = false;
-    btn.innerHTML  = '🔄 Sync Sheets';
-    info.textContent = `❌ Gagal: ${errMsg || 'Periksa koneksi'}`;
-    info.className = 'sync-info error';
+    btn.disabled     = false;
+    btn.innerHTML    = '🔄 Sync Supabase';
+    info.textContent = `❌ ${errMsg || 'Periksa koneksi'}`;
+    info.className   = 'sync-info error';
   }
 }
 
@@ -896,22 +912,18 @@ function _timeNow() {
 }
 
 function _injectSyncButton() {
-  // Only inject once
   if (document.getElementById('sync-btn')) return;
-
   const dashTab = document.getElementById('tab-dashboard');
   if (!dashTab) return;
-
-  // Insert a sync bar at the very top of the dashboard tab
   const bar = document.createElement('div');
   bar.id        = 'sync-bar';
   bar.className = 'sync-bar';
   bar.innerHTML = `
     <div class="sync-bar-left">
-      <span class="sync-bar-label">📡 Data dari Google Sheets</span>
+      <span class="sync-bar-label">📡 Data dari Supabase</span>
       <span id="sync-info" class="sync-info"></span>
     </div>
-    <button id="sync-btn" class="sync-btn" onclick="syncFromSheets()">🔄 Sync Sheets</button>`;
+    <button id="sync-btn" class="sync-btn" onclick="syncFromSheets()">🔄 Sync Supabase</button>`;
   dashTab.insertBefore(bar, dashTab.firstChild);
 }
 
